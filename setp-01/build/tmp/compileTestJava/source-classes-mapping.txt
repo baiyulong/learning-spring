@@ -1,0 +1,4 @@
+com/yulong/springframework/BeanFactoryTest.java
+ com.yulong.springframework.BeanFactoryTest
+com/yulong/springframework/bean/UserService.java
+ com.yulong.springframework.bean.UserService
