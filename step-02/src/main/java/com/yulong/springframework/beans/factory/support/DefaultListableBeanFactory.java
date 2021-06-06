@@ -14,7 +14,7 @@ import java.util.Objects;
  **/
 public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFactory implements BeanDefinitionRegistry {
 
-    private Map<String, BeanDefinition> beanDefinitionMap = new HashMap<>(16);
+    private final Map<String, BeanDefinition> beanDefinitionMap = new HashMap<>(16);
 
     @Override
     protected BeanDefinition getBeanDefinition(String beanName) throws BeansException {
