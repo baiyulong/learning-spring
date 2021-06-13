@@ -1,7 +1,9 @@
 package com.yulong.springframework.beans.factory.support;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.yulong.springframework.beans.BeansException;
 import com.yulong.springframework.beans.factory.config.BeanDefinition;
+import com.yulong.springframework.beans.factory.config.BeanReference;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -24,6 +26,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         } catch (Exception e) {
             throw new BeansException("Instantiation of bean failed", e);
         }
+        applyPropertyValues(beanName, bean, beanDefinition);
         addSingleton(beanName, bean);
         return bean;
     }
@@ -34,6 +37,21 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
                 .findFirst()
                 .orElse(null);
         return getInstantiationStrategy().instantiate(beanDefinition, beanName, ctor, args);
+    }
+
+    protected void applyPropertyValues(String beanName, Object bean, BeanDefinition beanDefinition) throws BeansException {
+        try {
+            beanDefinition.getPropertyValues().getPropertyValues().parallelStream().forEach(o -> {
+                var value = o.getValue();
+                if (value instanceof BeanReference) {
+                    var beanReference = (BeanReference) value;
+                    value = getBean(beanReference.getBeanName());
+                }
+                BeanUtil.setFieldValue(bean, o.getName(), value);
+            });
+        } catch (Exception e) {
+            throw new BeansException("Error setting property values：" + beanName);
+        }
     }
 
     public InstantiationStrategy getInstantiationStrategy() {

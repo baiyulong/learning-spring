@@ -17,7 +17,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class BeanFactoryTest {
 
     @Test
-    void testBeanFactory() {
+    void testBeanFactoryNoneArgs() {
+
+        var factory = new DefaultListableBeanFactory();
+
+        BeanDefinition beanDefinition = new BeanDefinition(UserService.class);
+        final var userService = "userService";
+        factory.registryBeanDefinition(userService, beanDefinition);
+
+        final var bean = factory.getBean(userService);
+        assertTrue(bean instanceof UserService);
+    }
+
+    @Test
+    void testBeanFactoryWithArgs() {
 
         var factory = new DefaultListableBeanFactory();
 
