@@ -3,9 +3,9 @@ package com.yulong.springframework.beans.factory.support;
 import com.yulong.springframework.beans.BeansException;
 import com.yulong.springframework.beans.factory.config.BeanDefinition;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author baiyl3@lenovo.com
@@ -18,16 +18,18 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
     @Override
     protected Object createBean(String beanName, BeanDefinition beanDefinition, Object[] args) throws BeansException {
-        var bean = createBeanInstance(beanDefinition, beanName, args);
-        addSingleton(beanName, bean);
-        return bean;
+        return createBeanInstance(beanDefinition, beanName, args)
+                .map(o -> {
+                    addSingleton(beanName, o);
+                    return o;
+                })
+                .orElseThrow(() -> new BeansException("Instance bean " + beanName + " failed."));
     }
 
-    protected Object createBeanInstance(BeanDefinition beanDefinition, String beanName, Object[] args) {
+    protected Optional<Object> createBeanInstance(BeanDefinition beanDefinition, String beanName, Object[] args) {
         return Arrays.stream(beanDefinition.getBeanClass().getDeclaredConstructors())
                 .filter(c -> Objects.nonNull(args) && c.getParameterTypes().length == args.length)
                 .findFirst()
-                .map(c -> instantiationStrategy.instantiate(beanDefinition, beanName, c, args))
-                .orElse(null);
+                .map(c -> instantiationStrategy.instantiate(beanDefinition, beanName, c, args));
     }
 }
